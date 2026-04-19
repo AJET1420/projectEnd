@@ -1,0 +1,42 @@
+# ========== Build Output ==========
+target/
+*.jar
+*.war
+*.class
+
+# ========== Maven ==========
+.mvn/
+mvnw
+mvnw.cmd
+
+# ========== IDE ==========
+.idea/
+*.iml
+.vscode/
+*.swp
+*.swo
+*~
+.project
+.classpath
+.settings/
+bin/
+.factorypath
+
+# ========== OS ==========
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ========== Environment / Secrets ==========
+.env
+*.env
+*.pem
+*.key
+
+# ========== Logs ==========
+*.log
+logs/
+
+# ========== Docker ==========
+# Don't commit local Docker data
+docker-data/

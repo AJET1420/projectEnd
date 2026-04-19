@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hello Service - DevOps Dashboard</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container { max-width: 900px; margin: 0 auto; }
+
+        /* Header */
+        .header {
+            text-align: center;
+            padding: 30px 0;
+        }
+        .header h1 { font-size: 2.2em; margin-bottom: 5px; }
+        .header p { color: #aaa; font-size: 1.1em; }
+        .status-badge {
+            display: inline-block;
+            background: #00c853;
+            color: #fff;
+            padding: 4px 16px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            margin-top: 10px;
+        }
+        .status-badge.down { background: #ff1744; }
+
+        /* Cards */
+        .cards { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 20px 0; }
+        .card {
+            background: rgba(255,255,255,0.07);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+        }
+        .card h3 { color: #7c4dff; margin-bottom: 12px; font-size: 1em; text-transform: uppercase; letter-spacing: 1px; }
+        .card .value { font-size: 1.6em; font-weight: bold; }
+        .card .label { color: #aaa; font-size: 0.85em; margin-top: 4px; }
+
+        /* Info Table */
+        .info-section {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px;
+            padding: 24px;
+            margin: 20px 0;
+        }
+        .info-section h2 { color: #7c4dff; margin-bottom: 16px; }
+        .info-table { width: 100%; }
+        .info-table tr { border-bottom: 1px solid rgba(255,255,255,0.06); }
+        .info-table td { padding: 10px 8px; }
+        .info-table td:first-child { color: #aaa; width: 40%; }
+        .info-table td:last-child { font-weight: 500; }
+
+        /* Greet Section */
+        .greet-section {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px;
+            padding: 24px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        .greet-section h2 { color: #7c4dff; margin-bottom: 16px; }
+        .greet-input {
+            padding: 12px 20px;
+            font-size: 1em;
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 8px;
+            background: rgba(255,255,255,0.1);
+            color: #fff;
+            width: 250px;
+            outline: none;
+        }
+        .greet-input::placeholder { color: #888; }
+        .greet-btn {
+            padding: 12px 24px;
+            font-size: 1em;
+            border: none;
+            border-radius: 8px;
+            background: #7c4dff;
+            color: #fff;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+        .greet-btn:hover { background: #6200ea; }
+        .greet-result {
+            margin-top: 16px;
+            font-size: 1.3em;
+            min-height: 40px;
+        }
+
+        /* Endpoints */
+        .endpoints {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px;
+            padding: 24px;
+            margin: 20px 0;
+        }
+        .endpoints h2 { color: #7c4dff; margin-bottom: 16px; }
+        .endpoint-item {
+            display: flex;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        .method {
+            background: #00c853;
+            color: #000;
+            padding: 2px 10px;
+            border-radius: 4px;
+            font-size: 0.8em;
+            font-weight: bold;
+            margin-right: 12px;
+        }
+        .endpoint-path { font-family: monospace; font-size: 0.95em; }
+        .endpoint-desc { color: #aaa; margin-left: auto; font-size: 0.85em; }
+
+        /* Footer */
+        .footer { text-align: center; color: #555; padding: 30px 0; font-size: 0.85em; }
+
+        @media (max-width: 600px) {
+            .cards { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+
+        <!-- HEADER -->
+        <div class="header">
+            <h1>&#9881; Hello Service</h1>
+            <p>DevOps Pipeline Demo Application</p>
+            <span class="status-badge" id="status-badge">Loading...</span>
+        </div>
+
+        <!-- METRIC CARDS -->
+        <div class="cards">
+            <div class="card">
+                <h3>App Version</h3>
+                <div class="value" id="app-version">—</div>
+                <div class="label">Deployed release</div>
+            </div>
+            <div class="card">
+                <h3>Environment</h3>
+                <div class="value" id="app-env">—</div>
+                <div class="label">Runtime environment</div>
+            </div>
+            <div class="card">
+                <h3>Hostname (Pod)</h3>
+                <div class="value" id="app-hostname" style="font-size:1em;word-break:break-all;">—</div>
+                <div class="label">In Kubernetes, this is the Pod name</div>
+            </div>
+            <div class="card">
+                <h3>Memory</h3>
+                <div class="value" id="app-memory">—</div>
+                <div class="label">Total / Free (MB)</div>
+            </div>
+        </div>
+
+        <!-- APP INFO -->
+        <div class="info-section">
+            <h2>&#128270; Container Info</h2>
+            <table class="info-table">
+                <tr><td>Java Version</td><td id="info-java">—</td></tr>
+                <tr><td>Operating System</td><td id="info-os">—</td></tr>
+                <tr><td>IP Address</td><td id="info-ip">—</td></tr>
+                <tr><td>Last Refreshed</td><td id="info-time">—</td></tr>
+            </table>
+        </div>
+
+        <!-- GREET -->
+        <div class="greet-section">
+            <h2>&#128075; Try the Greet API</h2>
+            <div>
+                <input type="text" class="greet-input" id="greet-name" placeholder="Enter your name...">
+                <button class="greet-btn" onclick="doGreet()">Greet Me</button>
+            </div>
+            <div class="greet-result" id="greet-result"></div>
+        </div>
+
+        <!-- API ENDPOINTS -->
+        <div class="endpoints">
+            <h2>&#128279; API Endpoints</h2>
+            <div class="endpoint-item">
+                <span class="method">GET</span>
+                <span class="endpoint-path">/</span>
+                <span class="endpoint-desc">App status &amp; version</span>
+            </div>
+            <div class="endpoint-item">
+                <span class="method">GET</span>
+                <span class="endpoint-path">/health</span>
+                <span class="endpoint-desc">Health check (K8s probes)</span>
+            </div>
+            <div class="endpoint-item">
+                <span class="method">GET</span>
+                <span class="endpoint-path">/greet?name=X</span>
+                <span class="endpoint-desc">Greeting message</span>
+            </div>
+            <div class="endpoint-item">
+                <span class="method">GET</span>
+                <span class="endpoint-path">/info</span>
+                <span class="endpoint-desc">Container/Pod details</span>
+            </div>
+            <div class="endpoint-item">
+                <span class="method">GET</span>
+                <span class="endpoint-path">/actuator/prometheus</span>
+                <span class="endpoint-desc">Prometheus metrics</span>
+            </div>
+        </div>
+
+        <div class="footer">
+            DevOps Pipeline Project &mdash; Spring Boot + Docker + Kubernetes + Prometheus
+        </div>
+    </div>
+
+    <script>
+        // Fetch app info on page load
+        async function loadDashboard() {
+            try {
+                // Fetch /info endpoint
+                const infoRes = await fetch('/info');
+                const info = await infoRes.json();
+
+                document.getElementById('app-version').textContent = info.version || '—';
+                document.getElementById('app-env').textContent = info.environment || '—';
+                document.getElementById('app-hostname').textContent = info.hostname || '—';
+                document.getElementById('app-memory').textContent =
+                    (info.total_memory_mb || '?') + ' / ' + (info.free_memory_mb || '?') + ' MB';
+                document.getElementById('info-java').textContent = info.java_version || '—';
+                document.getElementById('info-os').textContent = info.os || '—';
+                document.getElementById('info-ip').textContent = info.ip_address || '—';
+                document.getElementById('info-time').textContent = new Date().toLocaleString();
+
+                // Fetch /health endpoint
+                const healthRes = await fetch('/health');
+                const health = await healthRes.json();
+                const badge = document.getElementById('status-badge');
+
+                if (health.status === 'UP') {
+                    badge.textContent = '● RUNNING';
+                    badge.classList.remove('down');
+                } else {
+                    badge.textContent = '● DOWN';
+                    badge.classList.add('down');
+                }
+            } catch (err) {
+                document.getElementById('status-badge').textContent = '● ERROR';
+                document.getElementById('status-badge').classList.add('down');
+            }
+        }
+
+        // Greet button
+        async function doGreet() {
+            const name = document.getElementById('greet-name').value || 'World';
+            try {
+                const res = await fetch('/greet?name=' + encodeURIComponent(name));
+                const data = await res.json();
+                document.getElementById('greet-result').textContent = data.message;
+            } catch (err) {
+                document.getElementById('greet-result').textContent = 'Error calling API';
+            }
+        }
+
+        // Allow Enter key to trigger greet
+        document.getElementById('greet-name').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') doGreet();
+        });
+
+        // Load on startup + auto-refresh every 10 seconds
+        loadDashboard();
+        setInterval(loadDashboard, 10000);
+    </script>
+</body>
+</html>

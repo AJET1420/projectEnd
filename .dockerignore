@@ -1,0 +1,30 @@
+# Files/folders to exclude from Docker build context
+# This makes 'docker build' faster and keeps secrets out of the image
+
+# Build output (we build inside Docker, don't need local target/)
+target/
+
+# Git history
+.git/
+.gitignore
+
+# IDE files
+.idea/
+*.iml
+.vscode/
+*.swp
+
+# Documentation
+*.md
+
+# Docker files (don't copy Dockerfile into itself)
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# Environment files (NEVER put secrets in Docker images)
+.env
+*.env
+
+# Logs
+*.log

@@ -1,0 +1,30 @@
+version: '3.8'
+
+# Docker Compose — for LOCAL development only
+# In production, we use Kubernetes (EKS)
+
+services:
+  hello-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: hello-service
+    ports:
+      - "8080:8080"          # host:container
+    environment:
+      - APP_VERSION=1.0.0-local
+      - APP_ENVIRONMENT=docker
+      - SPRING_PROFILES_ACTIVE=local
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "http://localhost:8080/actuator/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+    restart: unless-stopped
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
